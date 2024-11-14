@@ -5,14 +5,14 @@
 from cryptography.fernet import Fernet
 
 # Uncomment and run write_key() with load_key() commented out to create key file
-'''# Define a key for us
-def write_key():
-    key = Fernet.generate_key()
-    with open("key.key", "wb") as key_file:
-        key_file.write(key)
+# Define a key for us
+# def write_key():
+#     key = Fernet.generate_key()
+#     with open("key.key", "wb") as key_file:
+#         key_file.write(key)
 
-write_key()
-'''
+# write_key()
+
 
 # Once running the program once to write the key, comment write_key out
 # and run the rest of the program
@@ -27,20 +27,35 @@ fer = Fernet(key)
 
 # View all stored passwords
 def view():
-    # Open the passwords text file in read more
-    with open("passwords.txt", "r") as f:
-        
-        for line in f.readlines():
 
-            # retrieve the line. rstrip removes carriage return
-            data = line.rstrip()
+    # Try to open the passwords file in read mode
+    try:
+        with open(file_name, "r") as f:
 
-            # split the username and password with |, assumes username and password do not have a |
-            user, pwd = data.split("|")
+            content = f.readlines()
 
-            # Display this username and password
-            print("User: ", user, "| Password: ", 
-                  fer.decrypt(pwd.encode()).decode())
+            # Check for empty file
+            if not content:
+                print("You have not saved any passwords!")
+            
+            # If there are passwords, display each un/pw pair
+            for line in content:
+
+                # retrieve the line. rstrip removes carriage return
+                data = line.rstrip()
+
+                # split the username and password with |, assumes username and password do not have a |
+                user, pwd = data.split("|")
+
+                # Display this username and password
+                print("User: ", user, "| Password: ", 
+                    fer.decrypt(pwd.encode()).decode())
+                
+    except FileNotFoundError:
+        # Create a passwords file if there wasn't one already and notify the user
+        open(file_name, "w")
+        print("passwords file was created as it did not exist.")
+        print("The file is empty. No username and password pairs found.")
 
 
 # Add the new username & password combo to the passwords text file
@@ -51,7 +66,7 @@ def add():
     pwd = input("Password: ")
     
     # Open passwords file in 'append' mode
-    with open("passwords.txt", "a") as f:
+    with open(file_name, "a") as f:
 
         # Write the username and encrypted password to the file
         f.write(name + "|" + fer.encrypt(pwd.encode()).decode() + "\n")
@@ -60,39 +75,36 @@ def add():
 def delete():
 
     # Deletes the contents of the file if it exists or creates an empty file and deletes it
-    open("passwords.txt", "w").close()
+    open(file_name, "w").close()
 
+# Main processing
+if __name__ == "__main__":
+    file_name = "passwords.txt"
 
-# Prompt the user for view, add, or quit
-mode = input("Would you like to view your existing passwords or add a new one? You can also press q to quit. ")
+    while True:
 
-# While loop controls primary logic of the application
-# When a user chooses the quit mode 'q', the application is terminated
-while True:
+        # Display the menu of options to the user
+        mode = input("Select an option: v: view existing passwords, a: add a password, d: delete all passwords, or q: quit.\n")
 
-    # Quit the application
-    if mode == "q":
-        break
+        # Exit if the user quits
+        if mode == "q":
+            break
 
-    # View existing passwords
-    if mode == "view":
+        # Display passwords
+        elif mode == "v":
+            view()
+        
+        # Add a new password
+        elif mode == "a":
+            add()
 
-        view()
-    
-    # Add a username & password combo
-    elif mode == "add":
-        add()
+        # Delete all passwords
+        elif mode == "d":
+            delete()
+            print('All passwords have been PURGED.')
 
-    # Delete all saved passwords
-    elif mode == "delete":
-        delete()
-        print('Passwords have been deleted. ')
+        # Prompt the user that they've provided an invalid response.
+        else:
+            print("Invalid response. ")
 
-    # If an invalid input is entered, display this to the user
-    else:
-        print("Invalid response. ")
-    
-    # Prompt the user to choose their next action
-    mode = input("Please enter 'view' to view passwords, 'add' to add a password, 'delete' to delete existing passwrods, or 'q' to quit. ")
-
-print('Program is closing. ')
+    print('Goodbye!')

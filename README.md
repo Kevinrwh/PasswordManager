@@ -6,7 +6,7 @@ To use this program do the following:
 3. Run the program
 
 Goals
-1. Make the cryptography more sophisticated
-2. Separate out functionality of creating key, presenting menu, adding/removing username and password combinations
-3. Introduce master password to take executive actions
-4. Refactor
+1. Change cryptography to not have to comment out code, if possible.
+2. Use more sophisticated cryptography
+3. Feature: Add ability to change a password.
+4. Feature: Introduce master password to take executive actions
