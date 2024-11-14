@@ -3,26 +3,28 @@
 # Currently trying to figure out write_key logic
 
 from cryptography.fernet import Fernet
+import os
 
-# Uncomment and run write_key() with load_key() commented out to create key file
-# Define a key for us
-# def write_key():
-#     key = Fernet.generate_key()
-#     with open("key.key", "wb") as key_file:
-#         key_file.write(key)
+# File paths
+file_name = "passwords.txt"
+key_file = "key.key"
 
-# write_key()
-
-
-# Once running the program once to write the key, comment write_key out
-# and run the rest of the program
-def load_key():
-    file = open("key.key", "rb")
-    key = file.read()
-    file.close()
+def load_or_create_key():
+    """Load an existing key or create a new key if the file doesn't exist."""
+    if os.path.exists(key_file):
+        # Load the existing key
+        with open(key_file, "rb") as key_file_obj:
+            key = key_file_obj.read()
+    else:
+        # Generate a new key and save it to the key file
+        key = Fernet.generate_key()
+        with open(key_file, "wb") as key_file_obj:
+            key_file_obj.write(key)
+        print("New encryption key created and saved to 'key.key'.")
     return key
 
-key = load_key()
+# Load or create the key automatically
+key = load_or_create_key()
 fer = Fernet(key)
 
 # View all stored passwords
@@ -79,7 +81,6 @@ def delete():
 
 # Main processing
 if __name__ == "__main__":
-    file_name = "passwords.txt"
 
     while True:
 
